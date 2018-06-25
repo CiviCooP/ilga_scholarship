@@ -1,0 +1,16 @@
+; @author Klaas Eikelboom (CiviCooP)
+; @date 05 juli 2017
+; @license AGPL-3.0
+name = Ilga Scholarship
+description = Views and functions for the ILGA scholarship approval process.
+core = 7.x
+version = "7.x-1.2"
+package = Ilga
+dependencies[] = civicrm (>=4.7)
+dependencies[] = views
+;dependencies[] = web_forms
+;dependencies[] = civicrm_webforms
+;general libraries
+files[] = includes/ilga_scholarship_score.inc
+files[] = includes/ilga_scholarship_helper.inc
+files[] = includes/ilga_scholarship_evaluate_application_link.inc
