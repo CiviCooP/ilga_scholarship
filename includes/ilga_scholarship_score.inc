@@ -1,9 +1,10 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: klaas
- * Date: 25-6-18
- * Time: 10:00
+ * Contains all the logic to calculate all the scholarship score's
+ *
+ * @author Klaas Eikelboom (CiviCooP)
+ * @date 25 juni 2018
+ * @license AGPL-3.0
  */
 
 class ilga_scholarship_score{
@@ -12,20 +13,32 @@ class ilga_scholarship_score{
   private $caseId;
   private $disability;
   private $oppressed;
-  private $score= 0;
-  private $explanation = [];
   private $birthDate;
   private $country;
 
   /**
+   * @var int Result of the score calculation
+   */
+  private $score= 0;
+
+  /**
+   * @var array Explanation how the result is calculated
+   */
+  private $explanation = [];
+
+  /**
    * _Score constructor.
    *
-   * @param $caseId
+   * @param $caseId for which the score must be calculated
    */
   public function __construct($caseId) {
     $this->caseId = $caseId;
   }
 
+  /**
+   * Reads score information form the database
+   * @throws \CiviCRM_API3_Exception
+   */
   public function getInfo(){
     $values = civicrm_api3('Case','getsingle',['id'=>$this->caseId]);
     $this->disability = $values[variable_get(ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD)];
@@ -41,7 +54,14 @@ class ilga_scholarship_score{
 
   }
 
+  /**
+   * Workhorse of the procedure. Does the calculation
+   */
   public function calculate(){
+    /*
+     * Each step has the same structure. Points are added to (or extracted from
+     * the score). In the explanation the reason is described
+     */
     $this->score=0;
     if($this->disability){
       $this->score+=10;
@@ -65,6 +85,10 @@ class ilga_scholarship_score{
     }
   }
 
+  /**
+   * Write the result back to the case custom fields
+   * @throws \CiviCRM_API3_Exception
+   */
   public function set(){
 
     civicrm_api3('Case','create',array(
@@ -75,6 +99,10 @@ class ilga_scholarship_score{
     );
   }
 
+  /**
+   * Umbrella procedure that executes all the code.
+   * @throws \CiviCRM_API3_Exception
+   */
   public function process(){
     $this->getInfo();
     $this->calculate();

@@ -1,4 +1,11 @@
 <?php
+/**
+ * Configuration of an view element
+ *
+ * @author Klaas Eikelboom (CiviCooP)
+ * @date 25 juni 2018
+ * @license AGPL-3.0
+ */
 
 function ilga_scholarship_views_data() {
   $data = [

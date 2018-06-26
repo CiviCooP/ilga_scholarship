@@ -3,7 +3,7 @@
  * Custom Drupal module for the ILGA Membership approval process
  *
  * @author Klaas Eikelboom (CiviCooP)
- * @date 05 juli 2017
+ * @date 25 juni 2018
  * @license AGPL-3.0
  */
 
@@ -16,6 +16,10 @@ const ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD = 'ilga_scholarship_score_
 const ILGA_SCHOLARSHIP_CASE_TYPE = 'ilga_scholarship_case_type';
 const ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE = 'ilga_scholarship_evaluate_activity_type';
 
+/**
+ * Drupal menu hook
+ * @return array
+ */
 function ilga_scholarship_menu(){
   $items = [];
   $items['admin/config/system/ilga-scholarship'] = [
@@ -29,6 +33,15 @@ function ilga_scholarship_menu(){
   return $items;
 }
 
+/**
+ * Configuration form
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @return mixed
+ * @throws \CiviCRM_API3_Exception
+ */
 function _ilga_scholarship_config_form($form, &$form_state){
   $query = db_query("SELECT nid, title FROM {node} WHERE type='webform'");
   $webformOptions = [];
@@ -130,6 +143,12 @@ function _ilga_scholarship_config_form($form, &$form_state){
   return system_settings_form($form);
 }
 
+/**
+ * Calculate the scholarship score after updating the webform
+ *
+ * @param $node
+ * @param $submission
+ */
 function ilga_scholarship_webform_submission_update($node, $submission) {
   module_load_include('inc', 'webform', 'includes/webform.submissions');
   if($node->nid==variable_get(ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID)){
@@ -142,6 +161,11 @@ function ilga_scholarship_webform_submission_update($node, $submission) {
   }
 }
 
+/**
+ * Calculate the scholarship score after submitting the webform
+ * @param $node
+ * @param $submission
+ */
 function ilga_scholarship_webform_submission_insert($node, $submission) {
   module_load_include('inc', 'webform', 'includes/webform.submissions');
   if($node->nid==variable_get(ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID)){
@@ -158,6 +182,10 @@ function ilga_scholarship_webform_submission_insert($node, $submission) {
   }
 }
 
+/**
+ * The weight of this module must be larger als webform civicrm to ensure
+ * the hooks execute after the webform civicrm hooks
+ */
 function ilga_scholarship_install() {
   db_update('system')
     ->fields(['weight' => 8])
@@ -165,6 +193,10 @@ function ilga_scholarship_install() {
     ->execute();
 }
 
+/**
+ * Add the custom view elements
+ * @return array
+ */
 function ilga_scholarship_views_api() {
   return [
     'api' => 3.0,

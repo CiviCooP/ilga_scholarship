@@ -1,7 +1,9 @@
 <?php
 /**
- * @author Klaas Eikelboom (CiviCooP) <klaas.eikelboom@civicoop.org>
- * @date 1/18/18 9:19 PM
+ * Adds a view element
+ *
+ * @author Klaas Eikelboom (CiviCooP)
+ * @date 25 juni 2018
  * @license AGPL-3.0
  */
 class ilga_scholarship_evaluate_application_link extends views_handler_field {

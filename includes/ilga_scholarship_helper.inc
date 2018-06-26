@@ -1,14 +1,31 @@
 <?php
+/**
+ * Class with static helper functions
+ *
+ * @author Klaas Eikelboom (CiviCooP)
+ * @date 25 juni 2018
+ * @license AGPL-3.0
+ */
 
 class ilga_scholarship_helper{
 
-   public static function currentUser() {
+  /**
+   * @return int Contact Id of the current user. Needed to find the
+   * details of the evaluator
+   */
+  public static function currentUser() {
      civicrm_initialize();
      $session = CRM_Core_Session::singleton();
      return $session->get('userID');
    }
 
-   static public function approval_link($caseId){
+  /**
+   * @param $caseId to create the approval link for
+   *
+   * @return string
+   * @throws \CiviCRM_API3_Exception
+   */
+  static public function approval_link($caseId){
 
      $result = civicrm_api3('Case', 'getsingle', array(
        'return' => array("contact_id"),
