@@ -145,7 +145,11 @@ function ilga_scholarship_webform_submission_update($node, $submission) {
 function ilga_scholarship_webform_submission_insert($node, $submission) {
   module_load_include('inc', 'webform', 'includes/webform.submissions');
   if($node->nid==variable_get(ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID)){
-    $cases = $submission->civicrm['case'];
+
+    // the submission is assigned a case id by the webforms_civicrm module hook
+    // load the submission to have latest data
+    $completeSubmission = webform_get_submission($node->nid,$submission->sid);
+    $cases = $completeSubmission->civicrm['case'];
     civicrm_initialize();
     foreach($cases as $case) {
       $scholarship = new ilga_scholarship_score($case['id']);
