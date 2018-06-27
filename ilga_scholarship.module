@@ -12,6 +12,7 @@ const ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID = 'ilga_scholarship_evaluation_web
 const ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD = 'ilga_scholarship_disability_custom_field';
 const ILGA_SCHOLARSHIP_OPPRESSED_CUSTOM_FIELD = 'ilga_scholarship_oppressed_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD = 'ilga_scholarship_score_custom_field';
+const ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD = 'ilga_scholarship_evaluation_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD = 'ilga_scholarship_score_explanation_custom_field';
 const ILGA_SCHOLARSHIP_CASE_TYPE = 'ilga_scholarship_case_type';
 const ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE = 'ilga_scholarship_evaluate_activity_type';
@@ -33,6 +34,8 @@ function ilga_scholarship_menu(){
   return $items;
 }
 
+
+
 /**
  * Configuration form
  *
@@ -43,46 +46,12 @@ function ilga_scholarship_menu(){
  * @throws \CiviCRM_API3_Exception
  */
 function _ilga_scholarship_config_form($form, &$form_state){
-  $query = db_query("SELECT nid, title FROM {node} WHERE type='webform'");
-  $webformOptions = [];
-  $records = $query->fetchAll();
-  foreach ($records as $record) {
-    $webformOptions[$record->nid] = $record->title;
-  }
-
   civicrm_initialize();
-
-  $result = civicrm_api3('CustomField', 'get', array(
-    'sequential' => 1,
-    'return' => array("label"),
-    'custom_group_id' => "Scholarship_application",
-  ));
-
-  $customFieldOptions = [];
-  foreach($result['values'] as $value){
-    $customFieldOptions['custom_'.$value['id']]=$value['label'];
-  }
-
-  $result = $result = civicrm_api3('CaseType', 'get', array(
-    'return' => array("title"),
-  ));
-
-  $caseTypes = [];
-  foreach($result['values'] as $value){
-    $caseTypes[$value['id']] = $value['title'];
-  }
-
-
-  $result = civicrm_api3('OptionValue', 'get', array(
-    'return' => array("name"),
-    'option_group_id' => "activity_type",
-    'options' => array('limit' => 0),
-  ));
-
-  $activityTypes = [];
-  foreach($result['values'] as $value){
-    $activityTypes[$value['id']] = $value['name'];
-  }
+  $webformOptions = _ilga_scholarship_webformOptions();
+  $scholarShipApplicationCustomfields = _ilga_scholarship_customFieldOptions('Scholarship_application');
+  $evaluationCustomfields = _ilga_scholarship_customFieldOptions('Evaluation');
+  $caseTypes = _ilga_scholarship_caseTypes();
+  $activityTypes = _ilga_scholarship_activityTypes();
 
   $form[ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID] = [
     "#title" => 'Select the webform that is used for the scholarship application',
@@ -101,46 +70,116 @@ function _ilga_scholarship_config_form($form, &$form_state){
   $form[ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD] = [
     "#title" => 'Custom Case field for disability',
     '#type' => 'select',
-    '#options' => $customFieldOptions,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD, array_keys($webformOptions)[0]),
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_OPPRESSED_CUSTOM_FIELD] = [
     "#title" => 'Custom Case field for oppressed groups',
     '#type' => 'select',
-    '#options' => $customFieldOptions,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_OPPRESSED_CUSTOM_FIELD, array_keys($webformOptions)[0]),
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_OPPRESSED_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD] = [
     "#title" => 'Custom Case field for recording the score',
     '#type' => 'select',
-    '#options' => $customFieldOptions,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD, array_keys($webformOptions)[0]),
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD] = [
     "#title" => 'Custom Case field for recording the score motivation',
     '#type' => 'select',
-    '#options' => $customFieldOptions,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD, array_keys($webformOptions)[0]),
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_CASE_TYPE] = [
     "#title" => 'Type of the scholar application case',
     '#type' => 'select',
     '#options' => $caseTypes,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_CASE_TYPE, array_keys($webformOptions)[0]),
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_CASE_TYPE, array_keys($caseTypes)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE] = [
     "#title" => 'Activity type of the scholarship application',
     '#type' => 'select',
     '#options' => $activityTypes,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE, array_keys($webformOptions)[0]),
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE, array_keys($activityTypes)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD] = [
+    "#title" => 'Score field for the evaluator',
+    '#type' => 'select',
+    '#options' => $evaluationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD,array_keys($evaluationCustomfields)[0]),
   ];
 
   return system_settings_form($form);
+}
+
+/**
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
+function _ilga_scholarship_activityTypes() {
+  $result = civicrm_api3('OptionValue', 'get', [
+    'return' => ["name"],
+    'option_group_id' => "activity_type",
+    'options' => ['limit' => 0],
+  ]);
+
+  $activityTypes = [];
+  foreach ($result['values'] as $value) {
+    $activityTypes[$value['id']] = $value['name'];
+  }
+  return $activityTypes;
+}
+
+/**
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
+function _ilga_scholarship_caseTypes() {
+  $caseTypes = [];
+  $result = $result = civicrm_api3('CaseType', 'get', [
+    'return' => ["title"],
+  ]);
+  foreach($result['values'] as $value){
+    $caseTypes[$value['id']] = $value['title'];
+  }
+  return $caseTypes;
+}
+
+/**
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
+function _ilga_scholarship_customFieldOptions($customGroup) {
+  $customFieldOptions = [];
+  $result = civicrm_api3('CustomField', 'get', [
+    'sequential' => 1,
+    'return' => ["label"],
+    'custom_group_id' => $customGroup,
+  ]);
+  foreach ($result['values'] as $value) {
+    $customFieldOptions['custom_' . $value['id']] = $value['label'];
+  }
+  return $customFieldOptions;
+}
+
+/**
+ * @return array all the published and unpublished webforms
+ */
+function _ilga_scholarship_webformOptions() {
+  $query = db_query("SELECT nid, title FROM {node} WHERE type='webform'");
+  $webformOptions = [];
+  $records = $query->fetchAll();
+  foreach ($records as $record) {
+    $webformOptions[$record->nid] = $record->title;
+  }
+  return $webformOptions;
 }
 
 /**
