@@ -16,6 +16,8 @@ class ilga_scholarship_score{
   private $country;
   private $stateProvince;
   private $stateProvinceName;
+  private $referenceDateYounger30;
+  private $referenceDateOlder60;
 
   /**
    * @var int Result of the score calculation
@@ -53,6 +55,9 @@ class ilga_scholarship_score{
     $this->stateProvince   = $contact['state_province'];
     $this->stateProvinceName   = $contact['state_province_name'];
 
+    $date = variable_get(ILGA_SCHOLARSHIP_REFERENCE_DATE);
+    $this->referenceDateYounger30 = ($date['year'] -30) .'-' . str_pad($date['month'],2,'0',STR_PAD_LEFT) . '-' .str_pad($date['day'],2,'0',STR_PAD_LEFT);
+    $this->referenceDateOlder60 = ($date['year'] - 60) .'-' . str_pad($date['month'],2,'0',STR_PAD_LEFT) . '-' .str_pad($date['day'],2,'0',STR_PAD_LEFT);
 
   }
 
@@ -70,13 +75,13 @@ class ilga_scholarship_score{
       $this->explanation[] = '10 points for having a disability';
     }
 
-    if ($this->birthDate > '1989-07-01') {
+    if ($this->birthDate > $this->referenceDateOlder30) {
       $this->score += 10;
-      $this->explanation[] = '10 for being younger than 30 on conference data';
+      $this->explanation[] = '10 for being younger than 30 on conference date';
     }
-    if ($this->birthDate < '1959-07-01') {
+    if ($this->birthDate < $this->referenceDateYounger60) {
       $this->score += 10;
-      $this->explanation[] = '10 for being older than 60 on conference data';
+      $this->explanation[] = '10 for being older than 60 on conference date';
     }
     if (in_array($this->country, ['Uganda', 'Iran', 'Russia'])) {
       $this->score += 10;
