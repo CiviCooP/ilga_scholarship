@@ -12,7 +12,6 @@ class ilga_scholarship_score{
 
   private $caseId;
   private $disability;
-  private $oppressed;
   private $birthDate;
   private $country;
   private $stateProvince;
@@ -44,7 +43,6 @@ class ilga_scholarship_score{
   public function getInfo(){
     $values = civicrm_api3('Case','getsingle',['id'=>$this->caseId]);
     $this->disability = $values[variable_get(ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD)];
-    $this->oppressed=$values[variable_get(ILGA_SCHOLARSHIP_OPPRESSED_CUSTOM_FIELD)];
 
     $client_id = $values['client_id'];
     $contactId = $client_id[1];
@@ -71,10 +69,7 @@ class ilga_scholarship_score{
       $this->score += 10;
       $this->explanation[] = '10 points for having a disability';
     }
-    if ($this->oppressed) {
-      $this->score += 10;
-      $this->explanation[] = '10 points for being part of an oppressed group';
-    }
+
     if ($this->birthDate > '1989-07-01') {
       $this->score += 10;
       $this->explanation[] = '10 for being younger than 30 on conference data';

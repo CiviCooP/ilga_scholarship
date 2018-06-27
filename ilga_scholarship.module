@@ -10,7 +10,6 @@
 const ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID = 'ilga_scholarship_application_webform_id';
 const ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID = 'ilga_scholarship_evaluation_webform_id';
 const ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD = 'ilga_scholarship_disability_custom_field';
-const ILGA_SCHOLARSHIP_OPPRESSED_CUSTOM_FIELD = 'ilga_scholarship_oppressed_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD = 'ilga_scholarship_score_custom_field';
 const ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD = 'ilga_scholarship_evaluation_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD = 'ilga_scholarship_score_explanation_custom_field';
@@ -33,8 +32,6 @@ function ilga_scholarship_menu(){
   ];
   return $items;
 }
-
-
 
 /**
  * Configuration form
@@ -72,13 +69,6 @@ function _ilga_scholarship_config_form($form, &$form_state){
     '#type' => 'select',
     '#options' => $scholarShipApplicationCustomfields,
     '#default_value' => variable_get(ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
-  ];
-
-  $form[ILGA_SCHOLARSHIP_OPPRESSED_CUSTOM_FIELD] = [
-    "#title" => 'Custom Case field for oppressed groups',
-    '#type' => 'select',
-    '#options' => $scholarShipApplicationCustomfields,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_OPPRESSED_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD] = [
