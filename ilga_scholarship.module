@@ -10,6 +10,8 @@
 const ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID = 'ilga_scholarship_application_webform_id';
 const ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID = 'ilga_scholarship_evaluation_webform_id';
 const ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD = 'ilga_scholarship_disability_custom_field';
+const ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_CUSTOM_FIELD = 'ilga_scholarship_sexual_identity_custom_field';
+const ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_OPTION_GROUP = 'ilga_scholarship_sexual_identity_option_group';
 const ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD = 'ilga_scholarship_score_custom_field';
 const ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD = 'ilga_scholarship_evaluation_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD = 'ilga_scholarship_score_explanation_custom_field';
@@ -50,6 +52,7 @@ function _ilga_scholarship_config_form($form, &$form_state){
   $evaluationCustomfields = _ilga_scholarship_customFieldOptions('Evaluation');
   $caseTypes = _ilga_scholarship_caseTypes();
   $activityTypes = _ilga_scholarship_activityTypes();
+  $optionGroups = _ilga_scholarship_optionGroups();
 
   $form[ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID] = [
     "#title" => 'Select the webform that is used for the scholarship application',
@@ -63,6 +66,20 @@ function _ilga_scholarship_config_form($form, &$form_state){
     '#type' => 'select',
     '#options' => $webformOptions,
     '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID, array_keys($webformOptions)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for sexual identity',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_OPTION_GROUP] = [
+    "#title" => 'Option Group that selects the values of the sexual identity',
+    '#type' => 'select',
+    '#options' => $optionGroups,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_OPTION_GROUP, array_keys($optionGroups)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD] = [
@@ -122,9 +139,9 @@ function _ilga_scholarship_config_form($form, &$form_state){
  */
 function _ilga_scholarship_activityTypes() {
   $result = civicrm_api3('OptionValue', 'get', [
-    'return' => ["name"],
+    'return' => ['name'],
     'option_group_id' => "activity_type",
-    'options' => ['limit' => 0],
+    'options' => ['limit' => 0, 'sort' => 'name'],
   ]);
 
   $activityTypes = [];
@@ -157,13 +174,30 @@ function _ilga_scholarship_customFieldOptions($customGroup) {
   $customFieldOptions = [];
   $result = civicrm_api3('CustomField', 'get', [
     'sequential' => 1,
-    'return' => ["label"],
+    'return' => ['label'],
     'custom_group_id' => $customGroup,
   ]);
   foreach ($result['values'] as $value) {
     $customFieldOptions['custom_' . $value['id']] = $value['label'];
   }
   return $customFieldOptions;
+}
+
+/**
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
+function _ilga_scholarship_optionGroups() {
+  $optionGroups = [];
+  $result = civicrm_api3('OptionGroup', 'get', array(
+    'return' => ['name','title'],
+    'options' => ['limit' => 0 , 'sort' => 'title'],
+    'is_active' => 1,
+  ));
+  foreach ($result['values'] as $value) {
+    $optionGroups[$value['name']] = $value['title'];
+  }
+  return $optionGroups;
 }
 
 /**
