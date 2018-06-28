@@ -12,6 +12,8 @@ const ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID = 'ilga_scholarship_evaluation_web
 const ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD = 'ilga_scholarship_disability_custom_field';
 const ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_CUSTOM_FIELD = 'ilga_scholarship_sexual_identity_custom_field';
 const ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_OPTION_GROUP = 'ilga_scholarship_sexual_identity_option_group';
+const ILGA_SCHOLARSHIP_BEEN_BEFORE_CUSTOM_FIELD = 'ilga_scholarship_been_before_custom_field';
+const ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD = 'ilga_scholarship_workshop_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD = 'ilga_scholarship_score_custom_field';
 const ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD = 'ilga_scholarship_evaluation_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD = 'ilga_scholarship_score_explanation_custom_field';
@@ -87,6 +89,20 @@ function _ilga_scholarship_config_form($form, &$form_state){
     '#type' => 'select',
     '#options' => $scholarShipApplicationCustomfields,
     '#default_value' => variable_get(ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_BEEN_BEFORE_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for been before (second visit)',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_BEEN_BEFORE_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for applying for workshop proposal',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD] = [

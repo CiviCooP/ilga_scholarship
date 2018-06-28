@@ -13,6 +13,8 @@ class ilga_scholarship_score{
   private $caseId;
   private $disability;
   private $identity;
+  private $beenBefore;
+  private $workShop;
   private $birthDate;
   private $country;
   private $stateProvince;
@@ -47,6 +49,8 @@ class ilga_scholarship_score{
     $values = civicrm_api3('Case','getsingle',['id'=>$this->caseId]);
     $this->disability = $values[variable_get(ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD)];
     $this->identity = $values[variable_get(ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_CUSTOM_FIELD)];
+    $this->beenBefore = $values[variable_get(ILGA_SCHOLARSHIP_BEEN_BEFORE_CUSTOM_FIELD)];
+    $this->workShop = $values[variable_get(ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD)];
 
     $client_id = $values['client_id'];
     $contactId = $client_id[1];
@@ -77,6 +81,16 @@ class ilga_scholarship_score{
     if ($this->disability) {
       $this->score += 10;
       $this->explanation[] = '10 points for having a disability';
+    }
+
+    if($this->beenBefore) {
+      $this->score -= 10;
+      $this->explanation[] = '-10 points because is not the first visit';
+    }
+
+    if($this->beenBefore) {
+      $this->score +=10;
+      $this->explanation[] = '10 points because plans to apply for workshop';
     }
 
     if ($this->birthDate > $this->referenceDateYounger30) {
