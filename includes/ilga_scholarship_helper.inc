@@ -9,6 +9,21 @@
 
 class ilga_scholarship_helper{
 
+  private static function activityId($caseId,$contactId){
+
+    return CRM_CORE_DAO::singleValueQuery(
+      "select act.id
+       from civicrm_activity act
+       join civicrm_case_activity ca on (act.id = ca.activity_id and ca.case_id = %1)
+       join civicrm_activity_contact ac on (ac.activity_id = ca.activity_id and ac.record_type_id = %2)
+       where act.activity_type_id = %3 and ac.contact_id=%4",[
+         1 => [$caseId,'Integer'],
+         2 => [2,'Integer'], // record type id
+         3 => [variable_get(ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE),'Integer'],
+         4 => [$contactId,'Integer']
+      ]);
+  }
+
   /**
    * @return int Contact Id of the current user. Needed to find the
    * details of the evaluator
@@ -38,6 +53,11 @@ class ilga_scholarship_helper{
        'cid2' => ilga_scholarship_helper::currentUser(),
        'case1' => $caseId,
      ];
+
+     $activityId = self::activityId($caseId,self::currentUser());
+     if($activityId){
+       $query['activity1'] = $activityId;
+     }
 
      return l('Approve', 'node/' . variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID), [
          "query" => $query,
