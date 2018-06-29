@@ -43,6 +43,7 @@ class ilga_scholarship_evaluation {
     $config = self::config();
     $sql = "select sum({$config['scoreField']}) from civicrm_case_activity ca
     join {$config['scoreTable']} cv on (ca.activity_id=cv.entity_id)
+    join civicrm_activity act on (act.id = ca.activity_id and act.is_deleted=0)
     where ca.case_id=%1";
     $this->sum = CRM_Core_DAO::singleValueQuery($sql,[
       1 => [$this->caseId, 'Integer'],
