@@ -252,6 +252,13 @@ function ilga_scholarship_webform_submission_update($node, $submission) {
       $scholarship = new ilga_scholarship_score($case['id']);
       $scholarship->process();
     }
+  } elseif($node->nid==variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID)){
+      $activities = $submission->civicrm['activity'];
+      civicrm_initialize();
+      foreach($activities as $activity){
+        $evaluation = new ilga_scholarship_evaluation($activity['id']);
+        $evaluation->process();
+      }
   }
 }
 
@@ -262,16 +269,24 @@ function ilga_scholarship_webform_submission_update($node, $submission) {
  */
 function ilga_scholarship_webform_submission_insert($node, $submission) {
   module_load_include('inc', 'webform', 'includes/webform.submissions');
-  if($node->nid==variable_get(ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID)){
-
+  if ($node->nid == variable_get(ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID)) {
     // the submission is assigned a case id by the webforms_civicrm module hook
     // load the submission to have latest data
-    $completeSubmission = webform_get_submission($node->nid,$submission->sid);
+    $completeSubmission = webform_get_submission($node->nid, $submission->sid);
     $cases = $completeSubmission->civicrm['case'];
     civicrm_initialize();
-    foreach($cases as $case) {
+    foreach ($cases as $case) {
       $scholarship = new ilga_scholarship_score($case['id']);
       $scholarship->process();
+    }
+  }
+  elseif ($node->nid == variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID)) {
+    $completeSubmission = webform_get_submission($node->nid, $submission->sid);
+    $activities = $completeSubmission->civicrm['activity'];
+    civicrm_initialize();
+    foreach ($activities as $activity) {
+      $evaluation = new ilga_scholarship_evaluation($activity['id']);
+      $evaluation->process();
     }
   }
 }
