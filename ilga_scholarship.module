@@ -155,14 +155,14 @@ function _ilga_scholarship_config_form($form, &$form_state){
  */
 function _ilga_scholarship_activityTypes() {
   $result = civicrm_api3('OptionValue', 'get', [
-    'return' => ['name'],
+    'return' => ['value','name'],
     'option_group_id' => "activity_type",
     'options' => ['limit' => 0, 'sort' => 'name'],
   ]);
 
   $activityTypes = [];
   foreach ($result['values'] as $value) {
-    $activityTypes[$value['id']] = $value['name'];
+    $activityTypes[$value['value']] = $value['name'];
   }
   return $activityTypes;
 }
