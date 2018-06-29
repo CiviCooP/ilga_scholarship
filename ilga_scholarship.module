@@ -16,6 +16,7 @@ const ILGA_SCHOLARSHIP_BEEN_BEFORE_CUSTOM_FIELD = 'ilga_scholarship_been_before_
 const ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD = 'ilga_scholarship_workshop_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD = 'ilga_scholarship_score_custom_field';
 const ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD = 'ilga_scholarship_evaluation_custom_field';
+const ILGA_SCHOLARSHIP_EVALUATION_TOTAL_CUSTOM_FIELD = 'ilga_scholarship_evaluation_total_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD = 'ilga_scholarship_score_explanation_custom_field';
 const ILGA_SCHOLARSHIP_CASE_TYPE = 'ilga_scholarship_case_type';
 const ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE = 'ilga_scholarship_evaluate_activity_type';
@@ -138,6 +139,13 @@ function _ilga_scholarship_config_form($form, &$form_state){
     '#type' => 'select',
     '#options' => $evaluationCustomfields,
     '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD,array_keys($evaluationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_EVALUATION_TOTAL_CUSTOM_FIELD] = [
+    "#title" => 'Total score of the evaluation on the case',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATION_TOTAL_CUSTOM_FIELD,array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_REFERENCE_DATE] = [
@@ -289,3 +297,4 @@ function ilga_scholarship_views_api() {
     'path' => drupal_get_path('module', 'ilga_scholarship') . '/includes',
   ];
 }
+
