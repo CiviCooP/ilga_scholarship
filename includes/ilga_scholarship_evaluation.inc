@@ -10,10 +10,10 @@
 class ilga_scholarship_evaluation {
 
   private $activityId;
-
   private $caseId;
-
   private $sum;
+
+  private static $singleton = null;
 
   /**
    * ilga_scholarship_evaluation constructor.
@@ -24,6 +24,9 @@ class ilga_scholarship_evaluation {
     $this->activityId = $activityId;
   }
 
+  /**
+   * find caseId - uses objects activity Id
+   */
   private function findCaseId() {
 
     $this->caseId = CRM_Core_DAO::singleValueQuery("
@@ -33,15 +36,23 @@ class ilga_scholarship_evaluation {
     ]);
   }
 
+  /**
+   *
+   */
   private function calculateSum() {
-    $this->sum = CRM_Core_DAO::singleValueQuery("
-    select sum(cv.score_63) from civicrm_case_activity ca
-    join civicrm_value_evaluation_8 cv on (ca.activity_id=cv.entity_id)
-    where ca.case_id=%1", [
+    $config = self::config();
+    $sql = "select sum({$config['scoreField']}) from civicrm_case_activity ca
+    join {$config['scoreTable']} cv on (ca.activity_id=cv.entity_id)
+    where ca.case_id=%1";
+    $this->sum = CRM_Core_DAO::singleValueQuery($sql,[
       1 => [$this->caseId, 'Integer'],
     ]);
   }
 
+  /**
+   * Store the total result in the case
+   * @throws \CiviCRM_API3_Exception
+   */
   private function store(){
 
     civicrm_api3('Case','create',[
@@ -50,11 +61,31 @@ class ilga_scholarship_evaluation {
     ]);
   }
 
+  /**
+   * @throws \CiviCRM_API3_Exception
+   */
   public function process() {
     $this->findCaseId();
     $this->calculateSum();
     $this->store();
   }
 
-
+  /**
+   * @return array the config signleton object, if not exists it is created
+   * @throws \CiviCRM_API3_Exception
+   */
+  private static function config(){
+    if(!self::$singleton){
+      $scoreFieldId = substr(variable_get(ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD),7); // remove the 'custom_' part
+      $result = civicrm_api3('CustomField', 'getsingle', array(
+        'id' => $scoreFieldId,
+      ));
+      self::$singleton['scoreField'] = $result['column_name'];
+      self::$singleton['scoreTable'] = civicrm_api3('CustomGroup', 'getvalue', array(
+        'return' => "table_name",
+        'id' => $result['custom_group_id'],
+      ));
+    }
+    return self::$singleton;
+  }
 }
