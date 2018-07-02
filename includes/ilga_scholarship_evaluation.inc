@@ -37,10 +37,13 @@ class ilga_scholarship_evaluation {
   }
 
   /**
-   *
+   * calculates the sum of all the score on evaluation activies
    */
   private function calculateSum() {
     $config = self::config();
+    // remark that the is_current_revision must be true
+    // sometimes on an update of a case activity the old version is
+    // archived. The sum must be calculated on current versions
     $sql = "select sum({$config['scoreField']}) from civicrm_case_activity ca
     join {$config['scoreTable']} cv on (ca.activity_id=cv.entity_id)
     join civicrm_activity act on (act.id = ca.activity_id and act.is_deleted=0 and act.is_current_revision=1)
@@ -72,7 +75,7 @@ class ilga_scholarship_evaluation {
   }
 
   /**
-   * @return array the config signleton object, if not exists it is created
+   * @return array the config signleton object, if it not exists it is created
    * @throws \CiviCRM_API3_Exception
    */
   private static function config(){
