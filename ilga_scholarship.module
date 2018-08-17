@@ -202,7 +202,7 @@ function _ilga_scholarship_config_form($form, &$form_state){
       '#title' => 'Representing Relation ship',
       '#type' => 'select',
       '#options' => $relationshipTypes,
-      '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE, array_keys($relationshipTypes)[0]),
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_REPRESENTING_RELATION_TYPE, array_keys($relationshipTypes)[0]),
     ],
     ILGA_SCHOLARSHIP_VALID_MEMBERSHIP_TYPES => [
       '#title' => 'Valid membership types',
