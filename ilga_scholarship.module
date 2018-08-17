@@ -12,7 +12,17 @@ const ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID = 'ilga_scholarship_evaluation_web
 const ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD = 'ilga_scholarship_disability_custom_field';
 const ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_CUSTOM_FIELD = 'ilga_scholarship_sexual_identity_custom_field';
 const ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_OPTION_GROUP = 'ilga_scholarship_sexual_identity_option_group';
-const ILGA_SCHOLARSHIP_BEEN_BEFORE_CUSTOM_FIELD = 'ilga_scholarship_been_before_custom_field';
+
+const ILGA_SCHOLARSHIP_GENDER_IDENTITY_CUSTOM_FIELD = 'ilga_scholarship_gender_identity_custom_field';
+const ILGA_SCHOLARSHIP_GENDER_IDENTITY_OPTION_GROUP = 'ilga_scholarship_gender_identity_option_group';
+
+const ILGA_SCHOLARSHIP_INTERSEX_CUSTOM_FIELD = 'ilga_scholarship_intersex_custom_field';
+const ILGA_SCHOLARSHIP_INDIGENOUS_CUSTOM_FIELD = 'ilga_scholarship_indigenous_custom_field';
+const ILGA_SCHOLARSHIP_MARGINALISED_CUSTOM_FIELD = 'ilga_scholarship_marginalised_custom_field';
+const ILGA_SCHOLARSHIP_HIV_CUSTOM_FIELD = 'ilga_scholarship_hiv_custom_field';
+const ILGA_SCHOLARSHIP_SEXWORKER_CUSTOM_FIELD = 'ilga_scholarship_sexworker_custom_field';
+
+const ILGA_SCHOLARSHIP_RECEIVED_CUSTOM_FIELD = 'ilga_scholarship_received_custom_field';
 const ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD = 'ilga_scholarship_workshop_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD = 'ilga_scholarship_score_custom_field';
 const ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD = 'ilga_scholarship_evaluation_custom_field';
@@ -85,6 +95,55 @@ function _ilga_scholarship_config_form($form, &$form_state){
     '#default_value' => variable_get(ILGA_SCHOLARSHIP_SEXUAL_IDENTITY_OPTION_GROUP, array_keys($optionGroups)[0]),
   ];
 
+  $form[ILGA_SCHOLARSHIP_GENDER_IDENTITY_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for gender identity',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_GENDER_IDENTITY_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_GENDER_IDENTITY_OPTION_GROUP] = [
+    "#title" => 'Option Group that selects the values of the gender identity',
+    '#type' => 'select',
+    '#options' => $optionGroups,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_GENDER_IDENTITY_OPTION_GROUP, array_keys($optionGroups)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_INTERSEX_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for intersex',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_INTERSEX_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_INDIGENOUS_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for indigenous or traditional group',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_INDIGENOUS_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_MARGINALISED_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for a marginalised group',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_MARGINALISED_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_HIV_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for a person living with hiv',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_HIV_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
+  $form[ILGA_SCHOLARSHIP_SEXWORKER_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field for a sex worker',
+    '#type' => 'select',
+    '#options' => $scholarShipApplicationCustomfields,
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SEXWORKER_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  ];
+
   $form[ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD] = [
     "#title" => 'Custom Case field for disability',
     '#type' => 'select',
@@ -92,11 +151,11 @@ function _ilga_scholarship_config_form($form, &$form_state){
     '#default_value' => variable_get(ILGA_SCHOLARSHIP_DISABILITY_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
-  $form[ILGA_SCHOLARSHIP_BEEN_BEFORE_CUSTOM_FIELD] = [
-    "#title" => 'Custom Case field for been before (second visit)',
+  $form[ILGA_SCHOLARSHIP_RECEIVED_CUSTOM_FIELD] = [
+    "#title" => 'Custom Case field received previsions scholarship',
     '#type' => 'select',
     '#options' => $scholarShipApplicationCustomfields,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_BEEN_BEFORE_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_RECEIVED_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
   ];
 
   $form[ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD] = [
@@ -196,14 +255,23 @@ function _ilga_scholarship_caseTypes() {
  */
 function _ilga_scholarship_customFieldOptions($customGroup) {
   $customFieldOptions = [];
-  $result = civicrm_api3('CustomField', 'get', [
-    'sequential' => 1,
-    'return' => ['label'],
-    'custom_group_id' => $customGroup,
-  ]);
-  foreach ($result['values'] as $value) {
-    $customFieldOptions['custom_' . $value['id']] = $value['label'];
+  try {
+    $result = civicrm_api3('CustomField', 'get', [
+      'sequential' => 1,
+      'return' => ['label'],
+      'custom_group_id' => $customGroup,
+      'options' => [
+        'limit' => 0,
+        'sort'  => 'label'
+      ]
+    ]);
+    foreach ($result['values'] as $value) {
+      $customFieldOptions['custom_' . $value['id']] = $value['label'];
+    }
+  } catch (CiviCRM_API3_Exception $ex) {
+    throw new Exception('Unable to load customgroup '.$customGroup);
   }
+
   return $customFieldOptions;
 }
 
@@ -249,14 +317,14 @@ function ilga_scholarship_webform_submission_update($node, $submission) {
     $cases = $submission->civicrm['case'];
     civicrm_initialize();
     foreach($cases as $case) {
-      $scholarship = new ilga_scholarship_score($case['id']);
+      $scholarship = new CRM_Scholarship_Score($case['id']);
       $scholarship->process();
     }
   } elseif($node->nid==variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID)){
       $activities = $submission->civicrm['activity'];
       civicrm_initialize();
       foreach($activities as $activity){
-        $evaluation = new ilga_scholarship_evaluation($activity['id']);
+        $evaluation = new CRM_Scholarship_Evaluation($activity['id']);
         $evaluation->process();
       }
   }
@@ -276,7 +344,7 @@ function ilga_scholarship_webform_submission_insert($node, $submission) {
     $cases = $completeSubmission->civicrm['case'];
     civicrm_initialize();
     foreach ($cases as $case) {
-      $scholarship = new ilga_scholarship_score($case['id']);
+      $scholarship = new CRM_Scholarship_Score($case['id']);
       $scholarship->process();
     }
   }
@@ -285,7 +353,7 @@ function ilga_scholarship_webform_submission_insert($node, $submission) {
     $activities = $completeSubmission->civicrm['activity'];
     civicrm_initialize();
     foreach ($activities as $activity) {
-      $evaluation = new ilga_scholarship_evaluation($activity['id']);
+      $evaluation = new CRM_Scholarship_Evaluation($activity['id']);
       $evaluation->process();
     }
   }

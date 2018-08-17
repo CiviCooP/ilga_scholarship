@@ -9,7 +9,5 @@ package = Ilga
 dependencies[] = civicrm (>=4.7)
 dependencies[] = views
 
-files[] = includes/ilga_scholarship_score.inc
-files[] = includes/ilga_scholarship_evaluation.inc
 files[] = includes/ilga_scholarship_helper.inc
 files[] = includes/ilga_scholarship_evaluate_application_link.inc

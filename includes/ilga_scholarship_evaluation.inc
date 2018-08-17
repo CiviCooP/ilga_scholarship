@@ -37,7 +37,7 @@ class ilga_scholarship_evaluation {
   }
 
   /**
-   * calculates the sum of all the score on evaluation activies
+   * calculates the sum of all the score on evaluation activities
    */
   private function calculateSum() {
     $config = self::config();
@@ -75,7 +75,7 @@ class ilga_scholarship_evaluation {
   }
 
   /**
-   * @return array the config signleton object, if it not exists it is created
+   * @return array the config singleton object, if it not exists it is created
    * @throws \CiviCRM_API3_Exception
    */
   private static function config(){
