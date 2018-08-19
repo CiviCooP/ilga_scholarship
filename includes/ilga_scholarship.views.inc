@@ -22,6 +22,14 @@ function ilga_scholarship_views_data() {
           'click sortable' => FALSE,
         ],
       ],
+      'evaluate_summary' => [
+        'title' => 'Evaluation Summary',
+        'help' => 'Shows a summary of all evaluations',
+        'field' => [
+          'handler' => 'ilga_scholarship_evaluate_summary',
+          'click sortable' => FALSE,
+        ],
+      ],
     ],
   ];
   return $data;
