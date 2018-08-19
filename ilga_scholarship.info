@@ -11,3 +11,4 @@ dependencies[] = views
 
 files[] = includes/ilga_scholarship_helper.inc
 files[] = includes/ilga_scholarship_evaluate_application_link.inc
+files[] = includes/ilga_scholarship_evaluate_summary.inc
