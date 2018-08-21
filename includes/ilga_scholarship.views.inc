@@ -22,6 +22,14 @@ function ilga_scholarship_views_data() {
           'click sortable' => FALSE,
         ],
       ],
+      'evaluate_session' => [
+        'title' => 'Evaluate Session',
+        'help' => 'Generates link to the Session evaluation form',
+        'field' => [
+          'handler' => 'ilga_scholarship_evaluate_session_link',
+          'click sortable' => FALSE,
+        ],
+      ],
       'evaluate_summary' => [
         'title' => 'Evaluation Summary',
         'help' => 'Shows a summary of all evaluations',

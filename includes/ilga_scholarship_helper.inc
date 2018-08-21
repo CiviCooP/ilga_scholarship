@@ -9,6 +9,12 @@
 
 class ilga_scholarship_helper{
 
+  /**
+   * @param $caseId
+   * @param $contactId
+   *
+   * @return null|string
+   */
   private static function activityId($caseId,$contactId){
 
     return CRM_CORE_DAO::singleValueQuery(
@@ -22,6 +28,23 @@ class ilga_scholarship_helper{
          3 => [variable_get(ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE),'Integer'],
          4 => [$contactId,'Integer']
       ]);
+  }
+
+  private static function sessionActivityId($contactId,$evaluatorId){
+
+    return CRM_CORE_DAO::singleValueQuery(
+      "select act.id from civicrm_activity act
+       join   civicrm_activity_contact ac1 on (ac1.activity_id = act.id and ac1.contact_id=%1)
+       join   civicrm_option_value     ov1 on (ov1.value = ac1.record_type_id and ov1.name='Activity Source')
+       join   civicrm_option_group     og1 on (ov1.option_group_id = og1.id and og1.name ='activity_contacts')
+       join   civicrm_activity_contact ac2 on (ac2.activity_id = act.id and ac2.record_type_id = 1 and ac2.contact_id=%2)
+       join   civicrm_option_value     ov2 on (ov2.value = ac2.record_type_id and ov2.name='Activity Assignees')
+       join   civicrm_option_group     og2 on (ov2.option_group_id = og2.id and og2.name ='activity_contacts')
+       where  act.activity_type_id = %3    and act.is_current_revision =1",[
+      1 => [$contactId,'Integer'],
+      2 => [$evaluatorId,'Integer'], // record type id
+      3 => [variable_get(ILGA_SCHOLARSHIP_SESSION_ACTIVITY_TYPE),'Integer'],
+    ]);
   }
 
   /**
@@ -65,13 +88,49 @@ class ilga_scholarship_helper{
      );
    }
 
-   static public function custom_table_name($name){
+  /**
+   * @param $contactId of the contact that proposed the session
+   *
+   * @return string
+   * @throws \CiviCRM_API3_Exception
+   */
+  static public function session_approval_link($contactId){
+
+    $query = [
+      'cid1' => ilga_scholarship_helper::currentUser(),
+      'cid2' => $contactId
+    ];
+
+    $activityId = self::sessionActivityId($contactId,self::currentUser());
+    if($activityId){
+      $query['activity1'] = $activityId;
+    }
+
+    return l('Approve Session', 'node/' . variable_get(ILGA_SCHOLARSHIP_SESSION_WEBFORM_NID), [
+        "query" => $query,
+      ]
+    );
+  }
+
+  /**
+   * @param $name
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  static public function custom_table_name($name){
      return civicrm_api3('CustomGroup','getvalue',[
        'name' => $name,
        'return' => 'table_name',
      ]);
    }
 
+  /**
+   * @param $customName
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
   static public function custom_column_name($customName){
     $id = substr($customName,7);
     return civicrm_api3('CustomField','getvalue',[
@@ -80,7 +139,13 @@ class ilga_scholarship_helper{
     ]);
   }
 
-   static public function evaluationSummary($caseId){
+  /**
+   * @param $caseId
+   *
+   * @return string
+   * @throws \CiviCRM_API3_Exception
+   */
+  static public function evaluationSummary($caseId){
      $activityTypeId = variable_get(ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE);
      $optionGroupName = variable_get(ILGA_SCHOLARSHIP_EVALUATION_OPTION_GROUP);
      $columnName = self::custom_column_name(variable_get(ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD));
