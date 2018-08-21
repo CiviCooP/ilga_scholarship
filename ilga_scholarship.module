@@ -250,7 +250,7 @@ function _ilga_scholarship_config_form($form, &$form_state){
     '#type' => 'fieldset',
     '#title' => 'Session Stuff',
     ILGA_SCHOLARSHIP_SESSION_ACTIVITY_TYPE => [
-      "#title" => 'Activity type of the scholarship application',
+      "#title" => 'Activity type of session evalution',
       '#type' => 'select',
       '#options' => $activityTypes,
       '#default_value' => variable_get(ILGA_SCHOLARSHIP_SESSION_ACTIVITY_TYPE, array_keys($activityTypes)[0]),
