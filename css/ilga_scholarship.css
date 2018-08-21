@@ -1,0 +1,6 @@
+/* Custom CSS for scholarship module */
+/*.view-scholarship-application-report .views-label {  font-style: italic}*/
+.view-scholarship-application-report .field-content { font-weight: bold }
+.view-scholarship-application-report .field-content p { border-style: solid;
+  border-width: 1px; }
+.view-scholarship-application-report .views-field { padding: 5px 0px 0 0 }

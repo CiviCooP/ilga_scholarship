@@ -9,6 +9,8 @@ package = Ilga
 dependencies[] = civicrm (>=4.7)
 dependencies[] = views
 
+stylesheets[all][] = css/ilga_scholarship.css
+
 files[] = includes/ilga_scholarship_helper.inc
 files[] = includes/ilga_scholarship_evaluate_application_link.inc
 files[] = includes/ilga_scholarship_evaluate_summary.inc
