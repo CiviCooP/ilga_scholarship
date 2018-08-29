@@ -28,6 +28,7 @@ const ILGA_SCHOLARSHIP_SEXWORKER_CUSTOM_FIELD = 'ilga_scholarship_sexworker_cust
 const ILGA_SCHOLARSHIP_RECEIVED_CUSTOM_FIELD = 'ilga_scholarship_received_custom_field';
 const ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD = 'ilga_scholarship_workshop_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD = 'ilga_scholarship_score_custom_field';
+const ILGA_SCHOLARSHIP_VERDICT_COUNT_CUSTOM_FIELD = 'ilga_scholarship_verdict_count_custom_field';
 const ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD = 'ilga_scholarship_evaluation_custom_field';
 const ILGA_SCHOLARSHIP_EVALUATION_OPTION_GROUP = 'ilga_scholarship_evaluation_option_group';
 const ILGA_SCHOLARSHIP_EVALUATION_TOTAL_CUSTOM_FIELD = 'ilga_scholarship_evaluation_total_custom_field';
@@ -74,6 +75,7 @@ function _ilga_scholarship_config_form($form, &$form_state){
   $webformOptions = _ilga_scholarship_webformOptions();
   $scholarShipApplicationCustomfields = _ilga_scholarship_customFieldOptions('Scholarship_application');
   $evaluationCustomfields = _ilga_scholarship_customFieldOptions('Evaluation');
+  $individualCustomfields = _ilga_scholarship_individual_customFieldOptions();
   $caseTypes = _ilga_scholarship_caseTypes();
   $activityTypes = _ilga_scholarship_activityTypes();
   $relationshipTypes = _ilga_scholarship_relationshipTypes();
@@ -190,18 +192,23 @@ function _ilga_scholarship_config_form($form, &$form_state){
     ],
   ];
 
-  $form[ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD] = [
-    "#title" => 'Custom Case field for recording the score',
-    '#type' => 'select',
-    '#options' => $scholarShipApplicationCustomfields,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
-  ];
-
-  $form[ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD] = [
-    "#title" => 'Custom Case field for recording the score motivation',
-    '#type' => 'select',
-    '#options' => $scholarShipApplicationCustomfields,
-    '#default_value' => variable_get(ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+  $form['scholarshipScoring'] = [
+    '#type' => 'fieldset',
+    '#title' => 'Scholarship Scoring',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD => [
+      "#title" => 'Custom Case field for recording the score',
+      '#type' => 'select',
+      '#options' => $scholarShipApplicationCustomfields,
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+    ],
+    ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD => [
+      "#title" => 'Custom Case field for recording the score motivation',
+      '#type' => 'select',
+      '#options' => $scholarShipApplicationCustomfields,
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
+    ],
   ];
 
   $form['membership'] = [
@@ -252,6 +259,12 @@ function _ilga_scholarship_config_form($form, &$form_state){
       '#options' => $scholarShipApplicationCustomfields,
       '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATION_TOTAL_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
     ],
+    ILGA_SCHOLARSHIP_VERDICT_COUNT_CUSTOM_FIELD => [
+      "#title" => 'Field on the evaluator where the verdict counts are shown',
+      '#type' => 'select',
+      '#options' => $individualCustomfields,
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_VERDICT_COUNT_CUSTOM_FIELD, array_keys($individualCustomfields)[0]),
+    ]
   ];
 
   $form['session'] = [
@@ -357,6 +370,20 @@ function _ilga_scholarship_customFieldOptions($customGroup) {
   return $customFieldOptions;
 }
 
+function _ilga_scholarship_individual_customFieldOptions() {
+  $customFieldOptions = [];
+  $dao = CRM_Core_DAO::executeQuery("
+    select cf.id,cf.label from civicrm_custom_group cg
+    join civicrm_custom_field cf on (cf.custom_group_id=cg.id)
+    where cg.extends='Individual' and cf.is_active=1
+    order by cf.label"
+  );
+  while ($dao->fetch()) {
+    $customFieldOptions[$dao->id] = 'custom_'.$dao->label;
+  }
+  return $customFieldOptions;
+}
+
 /**
  * @return array
  * @throws \CiviCRM_API3_Exception
@@ -395,13 +422,9 @@ function _ilga_scholarship_webformOptions() {
  */
 function ilga_scholarship_webform_submission_update($node, $submission) {
   module_load_include('inc', 'webform', 'includes/webform.submissions');
-  if($node->nid==variable_get(ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID)){
-    $cases = $submission->civicrm['case'];
-    civicrm_initialize();
-    foreach($cases as $case) {
-      $scholarship = new CRM_Scholarship_Score($case['id']);
-      $scholarship->process();
-    }
+  if ($node->nid == variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID)) {
+    $verdictCount = new CRM_Scholarship_VerdictCount(ilga_scholarship_helper::currentUser());
+    $verdictCount -> process();
   }
 }
 
@@ -412,16 +435,9 @@ function ilga_scholarship_webform_submission_update($node, $submission) {
  */
 function ilga_scholarship_webform_submission_insert($node, $submission) {
   module_load_include('inc', 'webform', 'includes/webform.submissions');
-  if ($node->nid == variable_get(ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID)) {
-    // the submission is assigned a case id by the webforms_civicrm module hook
-    // load the submission to have latest data
-    $completeSubmission = webform_get_submission($node->nid, $submission->sid);
-    $cases = $completeSubmission->civicrm['case'];
-    civicrm_initialize();
-    foreach ($cases as $case) {
-      $scholarship = new CRM_Scholarship_Score($case['id']);
-      $scholarship->process();
-    }
+  if ($node->nid == variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID)) {
+     $verdictCount = new CRM_Scholarship_VerdictCount(ilga_scholarship_helper::currentUser());
+     $verdictCount -> process();
   }
 }
 
