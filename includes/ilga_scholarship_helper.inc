@@ -65,15 +65,18 @@ class ilga_scholarship_helper{
    */
   static public function approval_link($caseId){
 
+    try{
+
      $result = civicrm_api3('Case', 'getsingle', array(
        'return' => array("contact_id"),
        'id' => $caseId,
      ));
+
      $clientId = array_shift($result['client_id']);
 
      $query = [
-       'cid1' => $clientId,
-       'cid2' => ilga_scholarship_helper::currentUser(),
+       'cid1' => ilga_scholarship_helper::currentUser(),
+       'cid2' => $clientId,
        'case1' => $caseId,
      ];
 
@@ -82,11 +85,14 @@ class ilga_scholarship_helper{
        $query['activity1'] = $activityId;
      }
 
-     return l('Approve', 'node/' . variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID), [
+     return l('Evaluate', 'node/' . variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID), [
          "query" => $query,
        ]
      );
-   }
+   } catch (Exception $ex){
+      return 'Oops - something went wrong';
+    }
+  }
 
   /**
    * @param $contactId of the contact that proposed the session
