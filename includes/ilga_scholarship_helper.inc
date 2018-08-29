@@ -21,7 +21,9 @@ class ilga_scholarship_helper{
       "select act.id
        from civicrm_activity act
        join civicrm_case_activity ca on (act.id = ca.activity_id and ca.case_id = %1)
-       join civicrm_activity_contact ac on (ac.activity_id = ca.activity_id and ac.record_type_id = %2)
+       join civicrm_activity_contact ac on (ac.activity_id = ca.activity_id)
+       join   civicrm_option_value   ov on (ov.value = ac.record_type_id and ov.name='Activity Assignees')
+       join   civicrm_option_group   og on (ov.option_group_id = og.id and og.name ='activity_contacts')
        where act.activity_type_id = %3 and ac.contact_id=%4 and act.is_deleted=0 and act.is_current_revision=1",[
          1 => [$caseId,'Integer'],
          2 => [2,'Integer'], // record type id
