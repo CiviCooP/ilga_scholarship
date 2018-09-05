@@ -29,7 +29,9 @@ const ILGA_SCHOLARSHIP_NATIONALITY_CUSTOM_FIELD = 'ilga_scholarship_nationality_
 const ILGA_SCHOLARSHIP_RECEIVED_CUSTOM_FIELD = 'ilga_scholarship_received_custom_field';
 const ILGA_SCHOLARSHIP_WORKSHOP_CUSTOM_FIELD = 'ilga_scholarship_workshop_custom_field';
 const ILGA_SCHOLARSHIP_SCORE_CUSTOM_FIELD = 'ilga_scholarship_score_custom_field';
-const ILGA_SCHOLARSHIP_VERDICT_COUNT_CUSTOM_FIELD = 'ilga_scholarship_verdict_count_custom_field';
+const ILGA_SCHOLARSHIP_VERDICT_CUSTOM_FIELD = 'ilga_scholarship_verdict_custom_field';
+const ILGA_SCHOLARSHIP_VERDICT_COUNT_VALUE = 'ilga_scholarship_verdict_count_value';
+const ILGA_SCHOLARSHIP_VERDICT_COUNT_LEVEL = 'ilga_scholarship_verdict_count_level';
 const ILGA_SCHOLARSHIP_EVALUATION_CUSTOM_FIELD = 'ilga_scholarship_evaluation_custom_field';
 const ILGA_SCHOLARSHIP_EVALUATION_OPTION_GROUP = 'ilga_scholarship_evaluation_option_group';
 const ILGA_SCHOLARSHIP_EVALUATION_TOTAL_CUSTOM_FIELD = 'ilga_scholarship_evaluation_total_custom_field';
@@ -81,6 +83,7 @@ function _ilga_scholarship_config_form($form, &$form_state){
   $activityTypes = _ilga_scholarship_activityTypes();
   $relationshipTypes = _ilga_scholarship_relationshipTypes();
   $optionGroups = _ilga_scholarship_optionGroups();
+  $verdictOptions = _ilga_scholarship_verdictOptions();
 
   $form['webforms'] = [
     ILGA_SCHOLARSHIP_APPLICATION_WEBFORM_NID => [
@@ -266,11 +269,24 @@ function _ilga_scholarship_config_form($form, &$form_state){
       '#options' => $scholarShipApplicationCustomfields,
       '#default_value' => variable_get(ILGA_SCHOLARSHIP_EVALUATION_TOTAL_CUSTOM_FIELD, array_keys($scholarShipApplicationCustomfields)[0]),
     ],
-    ILGA_SCHOLARSHIP_VERDICT_COUNT_CUSTOM_FIELD => [
+    ILGA_SCHOLARSHIP_VERDICT_CUSTOM_FIELD => [
       "#title" => 'Field on the evaluator where the verdict counts are shown',
       '#type' => 'select',
       '#options' => $individualCustomfields,
-      '#default_value' => variable_get(ILGA_SCHOLARSHIP_VERDICT_COUNT_CUSTOM_FIELD, array_keys($individualCustomfields)[0]),
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_VERDICT_CUSTOM_FIELD, array_keys($individualCustomfields)[0]),
+    ],
+    ILGA_SCHOLARSHIP_VERDICT_COUNT_VALUE => [
+      "#title" => 'What verdict must be maximized',
+      '#type' => 'radios',
+      '#options' => $verdictOptions,
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_VERDICT_COUNT_VALUE, array_keys($verdictOptions)[0]),
+      '#description' => 'If the wrong values are shown, save refresh and try again',
+
+    ],
+    ILGA_SCHOLARSHIP_VERDICT_COUNT_LEVEL => [
+    "#title" => 'What the maximum amount',
+    '#type' => 'textfield',
+    '#default_value' => variable_get(ILGA_SCHOLARSHIP_VERDICT_COUNT_LEVEL, 10),
     ]
   ];
 
@@ -419,6 +435,18 @@ function _ilga_scholarship_webformOptions() {
     $webformOptions[$record->nid] = $record->title;
   }
   return $webformOptions;
+}
+
+function _ilga_scholarship_verdictOptions() {
+  $options = [];
+  $result = civicrm_api3('OptionValue', 'get', [
+    'option_group_id' => variable_get(ILGA_SCHOLARSHIP_EVALUATION_OPTION_GROUP),
+  ]);
+  foreach ($result['values'] as $value){
+    $options[$value['value']] = $value['label'];
+  }
+  return $options;
+
 }
 
 /**
