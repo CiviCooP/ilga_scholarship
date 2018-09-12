@@ -38,6 +38,13 @@ function ilga_scholarship_views_data() {
           'click sortable' => FALSE,
         ],
       ],
+      'evaluation_stream' => [
+        'title' => t('Evalution Stream'),
+        'help' => t('Filter only the streams the evaluator is subscribed on'),
+        'filter' => [
+          'handler' => 'ilga_scholarship_handler_filter_streams',
+        ]
+      ],
     ],
   ];
   return $data;

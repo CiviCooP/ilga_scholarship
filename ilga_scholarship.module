@@ -39,6 +39,9 @@ const ILGA_SCHOLARSHIP_SCORE_EXPLANATION_CUSTOM_FIELD = 'ilga_scholarship_score_
 const ILGA_SCHOLARSHIP_CASE_TYPE = 'ilga_scholarship_case_type';
 const ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE = 'ilga_scholarship_evaluate_activity_type';
 const ILGA_SCHOLARSHIP_SESSION_ACTIVITY_TYPE = 'ilga_scholarship_session_activity_type';
+const ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD = 'ilga_scholarship_session_verdict_custom_field';
+const ILGA_SCHOLARSHIP_STREAM_CUSTOM_FIELD = 'ilga_scholarship_stream_custom_field';
+
 const ILGA_SCHOLARSHIP_REFERENCE_DATE = 'ilga_scholarship_reference_date';
 
 // stuff for membership
@@ -78,6 +81,7 @@ function _ilga_scholarship_config_form($form, &$form_state){
   $webformOptions = _ilga_scholarship_webformOptions();
   $scholarShipApplicationCustomfields = _ilga_scholarship_customFieldOptions('Scholarship_application');
   $evaluationCustomfields = _ilga_scholarship_customFieldOptions('Evaluation');
+  $sessionCustomfields = _ilga_scholarship_customFieldOptions('Sessions_proposal_evaluation');
   $individualCustomfields = _ilga_scholarship_individual_customFieldOptions();
   $caseTypes = _ilga_scholarship_caseTypes();
   $activityTypes = _ilga_scholarship_activityTypes();
@@ -299,6 +303,20 @@ function _ilga_scholarship_config_form($form, &$form_state){
       '#options' => $activityTypes,
       '#default_value' => variable_get(ILGA_SCHOLARSHIP_SESSION_ACTIVITY_TYPE, array_keys($activityTypes)[0]),
     ],
+    ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD => [
+     "#title" => 'Field used for the session evaluation result',
+      '#type' => 'select',
+      '#options' => $sessionCustomfields,
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD , array_keys($sessionCustomfields)[0]),
+    ],
+    ILGA_SCHOLARSHIP_STREAM_CUSTOM_FIELD => [
+      "#title" => 'Field used for the stream of the evalutor',
+      '#type' => 'select',
+      '#options' => $individualCustomfields,
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_STREAM_CUSTOM_FIELD , array_keys($sessionCustomfields)[0]),
+
+    ]
+
   ];
 
   $form[ILGA_SCHOLARSHIP_REFERENCE_DATE] = [

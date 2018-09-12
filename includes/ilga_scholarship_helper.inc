@@ -112,9 +112,18 @@ class ilga_scholarship_helper{
     $activityId = self::sessionActivityId($contactId,self::currentUser());
     if($activityId){
       $query['activity1'] = $activityId;
+
+      $value = civicrm_api3('Activity','getvalue',
+        ['id' => $activityId,'return'=>variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD)]
+      );
+
+      $label = self::fieldLabel(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD),$value);
+      $label = 'You voted '.$label;
+    } else {
+      $label = 'Approve Session';
     }
 
-    return l('Approve Session', 'node/' . variable_get(ILGA_SCHOLARSHIP_SESSION_WEBFORM_NID), [
+    return l($label, 'node/' . variable_get(ILGA_SCHOLARSHIP_SESSION_WEBFORM_NID), [
         "query" => $query,
       ]
     );
@@ -183,6 +192,28 @@ class ilga_scholarship_helper{
        $output .= $dao->count. " ".$dao->label . "<br/>";
      }
      return $output;
+   }
+
+   static function fieldLabel($fieldName,$value){
+    try {
+      $fieldId = substr($fieldName, 7);
+      $optionGroupId = civicrm_api3('CustomField', 'getvalue',
+        ['id' => $fieldId, 'return' => 'option_group_id']);
+      $label = civicrm_api3('OptionValue', 'getvalue',
+        [
+          'value' => $value,
+          'option_group_id' => $optionGroupId,
+          'return' => 'label'
+        ]);
+      return $label;
+    }
+    catch (CiviCRM_API3_Exception $ex){
+      Civi::log()->error("Scholarship fieldLabel $fieldName,$value");
+      Civi::log()->error($ex->getMessage());
+      return 'fieldLabel Error';
+    }
+
+
    }
 
 
