@@ -36,9 +36,11 @@ class ilga_scholarship_handler_filter_streams extends views_handler_filter_in_op
 
        if($streamId) {
 
+         $streamList = implode(',',$streamId);
+
          $clause = "webform_submissions.sid in 
                   (select sid from {webform_submitted_data} wsd 
-                   where wsd.cid=150 and wsd.nid=12 and wsd.data LIKE '$streamId'
+                   where wsd.cid=150 and wsd.nid=12 and wsd.data in ($streamList)
                   )";
 
          $this->query->add_where_expression($this->options['group'], $clause);
