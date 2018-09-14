@@ -34,12 +34,15 @@ class ilga_scholarship_handler_filter_streams extends views_handler_filter_in_op
          'return' => 'custom_'.variable_get(ILGA_SCHOLARSHIP_STREAM_CUSTOM_FIELD,0),
        ]);
 
-       $clause = "webform_submissions.sid in 
+       if($streamId) {
+
+         $clause = "webform_submissions.sid in 
                   (select sid from {webform_submitted_data} wsd 
                    where wsd.cid=150 and wsd.nid=12 and wsd.data LIKE '$streamId'
                   )";
 
-       $this->query->add_where_expression($this->options['group'], $clause);
+         $this->query->add_where_expression($this->options['group'], $clause);
+       }
 
     }
 
