@@ -118,7 +118,6 @@ class ilga_scholarship_helper{
       );
 
       $label = self::fieldLabel(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD),$value);
-      $label = 'You voted '.$label;
     } else {
       $label = 'Approve Session';
     }
