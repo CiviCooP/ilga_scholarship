@@ -32,6 +32,12 @@ class ilga_scholarship_helper{
       ]);
   }
 
+  /**
+   * @param $contactId
+   * @param $evaluatorId
+   *
+   * @return null|string
+   */
   private static function sessionActivityId($contactId,$evaluatorId){
 
     return CRM_CORE_DAO::singleValueQuery(
@@ -102,14 +108,9 @@ class ilga_scholarship_helper{
    * @return string
    * @throws \CiviCRM_API3_Exception
    */
-  static public function session_approval_link($contactId){
+  static public function session_approval_link($sid,$proposerId){
 
-    $query = [
-      'cid1' => ilga_scholarship_helper::currentUser(),
-      'cid2' => $contactId
-    ];
-
-    $activityId = self::sessionActivityId($contactId,self::currentUser());
+    $activityId = CRM_Scholarship_Utils::findActivityBySid($sid,ilga_scholarship_helper::currentUser());
     if($activityId){
       $query['activity1'] = $activityId;
 
@@ -122,10 +123,9 @@ class ilga_scholarship_helper{
       $label = 'Approve Session';
     }
 
-    return l($label, 'node/' . variable_get(ILGA_SCHOLARSHIP_SESSION_WEBFORM_NID), [
-        "query" => $query,
-      ]
-    );
+    return l($label, "scholarship/votesession/$sid/$proposerId");
+
+
   }
 
   /**
@@ -193,7 +193,13 @@ class ilga_scholarship_helper{
      return $output;
    }
 
-   static function fieldLabel($fieldName,$value){
+  /**
+   * @param $fieldName
+   * @param $value
+   *
+   * @return string
+   */
+  static function fieldLabel($fieldName,$value){
     try {
       $fieldId = substr($fieldName, 7);
       $optionGroupId = civicrm_api3('CustomField', 'getvalue',
@@ -211,11 +217,31 @@ class ilga_scholarship_helper{
       Civi::log()->error($ex->getMessage());
       return 'fieldLabel Error';
     }
-
-
    }
 
+  /**
+   * @param $fieldName
+   *
+   * @return array
+   */
+  static function customFieldOptions($fieldName) {
+    try {
+      $fieldId = substr($fieldName, 7);
+      $optionGroupId = civicrm_api3('CustomField', 'getvalue',
+        ['id' => $fieldId, 'return' => 'option_group_id']);
+      $result = civicrm_api3('OptionValue', 'get',
+        [
+          'option_group_id' => $optionGroupId,
+        ]);
+      $options = [];
+      foreach ($result['values'] as $value){
+        $options[$value['value']] = $value['label'];
+      }
+      return $options;
+    } catch (CiviCRM_API3_Exception $ex) {
+      Civi::log()->error("Oops no custom values found for $fieldName");
+      return ['Oops'];
+    }
 
-
-
+   }
 }

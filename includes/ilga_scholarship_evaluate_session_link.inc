@@ -18,7 +18,7 @@ class ilga_scholarship_evaluate_session_link extends views_handler_field {
 
   function render($values) {
     $submission = webform_get_submission(variable_get(ILGA_SCHOLARSHIP_SESSION_WEBFORM_NID),$values->sid);
-    return ilga_scholarship_helper::session_approval_link($submission->civicrm['contact'][1]['id']);
+    return ilga_scholarship_helper::session_approval_link($values->sid,$submission->civicrm['contact'][1]['id']);
   }
 
 }

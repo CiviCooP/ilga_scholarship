@@ -41,6 +41,7 @@ const ILGA_SCHOLARSHIP_EVALUATE_ACTIVITY_TYPE = 'ilga_scholarship_evaluate_activ
 const ILGA_SCHOLARSHIP_SESSION_ACTIVITY_TYPE = 'ilga_scholarship_session_activity_type';
 const ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD = 'ilga_scholarship_session_verdict_custom_field';
 const ILGA_SCHOLARSHIP_STREAM_CUSTOM_FIELD = 'ilga_scholarship_stream_custom_field';
+const ILGA_SCHOLARSHIP_SUBMISSION_CUSTOM_FIELD = 'ilga_scholarship_submission_custom_field';
 
 const ILGA_SCHOLARSHIP_REFERENCE_DATE = 'ilga_scholarship_reference_date';
 
@@ -64,7 +65,106 @@ function ilga_scholarship_menu(){
     'access arguments' => ['access administration pages'],
     'type' => MENU_NORMAL_ITEM,
   ];
+  $items['scholarship/exportsessionvotes'] = [
+    'title' => 'Export the session votes',
+    'description' => 'Export the session votes',
+    'page callback' => '_ilga_scholarship_exportsessionvotes',
+    'access arguments' => ['access administration pages'],
+    'type' => MENU_NORMAL_ITEM,
+  ];
+  $items['scholarship/votesession/%/%'] = [
+    'title' => 'Session approval',
+    'description' => 'Session approval',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['_ilga_scholarship_sessionvote',2,3],
+    'access arguments' => ['access administration pages'],
+    'type' => MENU_CALLBACK
+
+  ];
   return $items;
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ * @param $submissionId
+ * @param $proposerId
+ *
+ * @return mixed
+ * @throws \CiviCRM_API3_Exception
+ */
+function _ilga_scholarship_sessionvote($form, &$form_state,$submissionId,$proposerId) {
+
+  civicrm_initialize();
+  $form['verdict'] = [
+    '#type' => 'select',
+    '#title' => 'Evaluation',
+    '#options' => ilga_scholarship_helper::customFieldOptions(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD))
+  ];
+
+  $form['submissionid'] = [
+    '#type' => 'hidden',
+    '#value' => $submissionId
+  ];
+
+  $form['proposerid'] = [
+    '#type' => 'hidden',
+    '#value' => $proposerId
+  ];
+
+  $form['details'] = [
+     '#type' => 'textarea',
+     '#title' => 'Motivation for your choice',
+  ];
+
+  $form['submit'] = [
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#submit' => ['_ilga_scholarship_sessionvote_submit']
+  ];
+
+  $activityId = CRM_Scholarship_Utils::findActivityBySid($submissionId,ilga_scholarship_helper::currentUser());
+  if($activityId){
+    $activity = civicrm_api3('Activity','getsingle',['id' => $activityId]);
+    $form['details']['#default_value'] = $activity['details'];
+    $form['verdict']['#default_value'] = $activity[variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD)];
+  }
+
+  return $form;
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ */
+function _ilga_scholarship_sessionvote_submit($form, &$form_state) {
+
+  $values = $form_state['values'];
+  CRM_Scholarship_Utils::updateActivitySid(
+    $values['proposerid'],
+    ilga_scholarship_helper::currentUser(),
+    $values['submissionid'],
+    $values['verdict'],
+    $values['details']
+  );
+  drupal_goto('/session-proposals');
+}
+
+/**
+ *
+ */
+function _ilga_scholarship_exportsessionvotes(){
+  // send response headers to the browser
+  civicrm_initialize();
+  drupal_add_http_header('Content-Type', 'text/csv');
+  drupal_add_http_header('Content-Disposition', 'attachment;filename=sessionverdicts.csv');
+  $csv_array = CRM_Scholarship_Utils::sessionVerdictResults();
+  $fp = fopen('php://output', 'w');
+  foreach($csv_array as $line){
+    fputcsv($fp, $line);
+  }
+  fclose($fp);
+  drupal_exit();
 }
 
 /**
@@ -309,11 +409,17 @@ function _ilga_scholarship_config_form($form, &$form_state){
       '#options' => $sessionCustomfields,
       '#default_value' => variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD , array_keys($sessionCustomfields)[0]),
     ],
+    ILGA_SCHOLARSHIP_SUBMISSION_CUSTOM_FIELD=> [
+      "#title" => 'Add submission id to the session id activity',
+      '#type' => 'select',
+      '#options' => $sessionCustomfields,
+      '#default_value' => variable_get( ILGA_SCHOLARSHIP_SUBMISSION_CUSTOM_FIELD, array_keys($sessionCustomfields)[0]),
+    ],
     ILGA_SCHOLARSHIP_STREAM_CUSTOM_FIELD => [
       "#title" => 'Field used for the stream of the evalutor',
       '#type' => 'select',
       '#options' => $individualCustomfields,
-      '#default_value' => variable_get(ILGA_SCHOLARSHIP_STREAM_CUSTOM_FIELD , array_keys($sessionCustomfields)[0]),
+      '#default_value' => variable_get(ILGA_SCHOLARSHIP_STREAM_CUSTOM_FIELD , array_keys($individualCustomfields)[0]),
 
     ]
 
@@ -361,6 +467,10 @@ function _ilga_scholarship_caseTypes() {
   return $caseTypes;
 }
 
+/**
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
 function _ilga_scholarship_relationshipTypes(){
   $relationshipTypes = [];
   $result = $result = civicrm_api3('RelationshipType', 'get', [
@@ -373,6 +483,10 @@ function _ilga_scholarship_relationshipTypes(){
   return $relationshipTypes;
 }
 
+/**
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
 function _ilga_scholarship_membershipTypes(){
   $membershipTypes = [];
   $result = $result = civicrm_api3('MembershipType', 'get', [
@@ -411,6 +525,9 @@ function _ilga_scholarship_customFieldOptions($customGroup) {
   return $customFieldOptions;
 }
 
+/**
+ * @return array
+ */
 function _ilga_scholarship_individual_customFieldOptions() {
   $customFieldOptions = [];
   $dao = CRM_Core_DAO::executeQuery("
@@ -455,6 +572,10 @@ function _ilga_scholarship_webformOptions() {
   return $webformOptions;
 }
 
+/**
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
 function _ilga_scholarship_verdictOptions() {
   $options = [];
   $result = civicrm_api3('OptionValue', 'get', [
@@ -464,7 +585,6 @@ function _ilga_scholarship_verdictOptions() {
     $options[$value['value']] = $value['label'];
   }
   return $options;
-
 }
 
 /**
@@ -491,6 +611,11 @@ function ilga_scholarship_webform_submission_insert($node, $submission) {
   if ($node->nid == variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID)) {
      $verdictCount = new CRM_Scholarship_VerdictCount(ilga_scholarship_helper::currentUser());
      $verdictCount -> process();
+  }
+  if ($node->nid == variable_get(ILGA_SCHOLARSHIP_SESSION_WEBFORM_NID)) {
+    $civiSubmission = webform_get_submission($submission->nid,$submission->sid);
+    $activityId = $civiSubmission->civicrm['activity'][1]['id'];
+    CRM_Scholarship_Utils::updateActivitySid($activityId,$submission->sid);
   }
 }
 
