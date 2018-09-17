@@ -77,11 +77,24 @@ function ilga_scholarship_menu(){
     'description' => 'Session approval',
     'page callback' => 'drupal_get_form',
     'page arguments' => ['_ilga_scholarship_sessionvote',2,3],
-    'access arguments' => ['access administration pages'],
+    'access arguments' => ['evaluate sessions'],
     'type' => MENU_CALLBACK
 
   ];
   return $items;
+}
+
+/**
+ * Implementation of the permission hook
+ * @return array
+ */
+function ilga_scholarship_permission() {
+  return [
+    'evaluate sessions' => [
+      'title' => t('Evaluate Sessions'),
+      'description' => t('Evaluate en vote on proposed sessions'),
+    ],
+  ];
 }
 
 /**
