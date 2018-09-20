@@ -156,6 +156,20 @@ class ilga_scholarship_helper{
   }
 
   /**
+   * @param $customName
+   *
+   * @return array
+   * @throws \CiviCRM_API3_Exception
+   */
+  static public function custom_column_optionGroupId($customName){
+    $id = substr($customName,7);
+    return civicrm_api3('CustomField','getvalue',[
+      'id' => $id,
+      'return' => 'option_group_id',
+    ]);
+  }
+
+  /**
    * @param $caseId
    *
    * @return string
