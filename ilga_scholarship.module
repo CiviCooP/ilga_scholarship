@@ -160,7 +160,7 @@ function _ilga_scholarship_sessionvote_submit($form, &$form_state) {
     $values['verdict'],
     $values['details']
   );
-  drupal_goto('/session-proposals');
+  drupal_goto('/session-proposals-overview');
 }
 
 /**
