@@ -4,7 +4,7 @@
 name = Ilga Scholarship
 description = Views and functions for the ILGA scholarship approval process.
 core = 7.x
-version = "7.x-1.2"
+version = "7.x-1.0"
 package = Ilga
 dependencies[] = civicrm (>=4.7)
 dependencies[] = views
