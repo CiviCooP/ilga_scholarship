@@ -147,6 +147,7 @@ function _ilga_scholarship_sessionvote($form, &$form_state,$submissionId,$propos
 }
 
 /**
+ * Form that creates a submission vote
  * @param $form
  * @param $form_state
  */
@@ -164,7 +165,7 @@ function _ilga_scholarship_sessionvote_submit($form, &$form_state) {
 }
 
 /**
- *
+ * Export the session voters als a CSV file (can be read be Excell)
  */
 function _ilga_scholarship_exportsessionvotes(){
   // send response headers to the browser
@@ -448,7 +449,7 @@ function _ilga_scholarship_config_form($form, &$form_state){
 }
 
 /**
- * @return array
+ * @return array a list with activity Types
  * @throws \CiviCRM_API3_Exception
  */
 function _ilga_scholarship_activityTypes() {
@@ -466,7 +467,7 @@ function _ilga_scholarship_activityTypes() {
 }
 
 /**
- * @return array
+ * @return array list with caseTypes
  * @throws \CiviCRM_API3_Exception
  */
 function _ilga_scholarship_caseTypes() {
@@ -481,7 +482,7 @@ function _ilga_scholarship_caseTypes() {
 }
 
 /**
- * @return array
+ * @return array list with relation types.
  * @throws \CiviCRM_API3_Exception
  */
 function _ilga_scholarship_relationshipTypes(){
@@ -497,7 +498,7 @@ function _ilga_scholarship_relationshipTypes(){
 }
 
 /**
- * @return array
+ * @return array list with membership types
  * @throws \CiviCRM_API3_Exception
  */
 function _ilga_scholarship_membershipTypes(){
@@ -512,9 +513,12 @@ function _ilga_scholarship_membershipTypes(){
   return $membershipTypes;
 }
 
+
 /**
+ * @param $customGroup as id or name (the API accepts also name).
+ *
  * @return array
- * @throws \CiviCRM_API3_Exception
+ * @throws \Exception
  */
 function _ilga_scholarship_customFieldOptions($customGroup) {
   $customFieldOptions = [];
