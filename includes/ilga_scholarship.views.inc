@@ -39,10 +39,17 @@ function ilga_scholarship_views_data() {
         ],
       ],
       'evaluation_stream' => [
-        'title' => t('Evalution Stream'),
+        'title' => t('Evaluation Stream'),
         'help' => t('Filter only the streams the evaluator is subscribed on'),
         'filter' => [
           'handler' => 'ilga_scholarship_handler_filter_streams',
+        ]
+      ],
+      'evaluation_session_verdicts' => [
+        'title' => t('Session Verdictssh '),
+        'help' => t('Filter on the session verdicts'),
+        'filter' => [
+          'handler' => 'ilga_scholarship_handler_filter_sessionverdicts',
         ]
       ],
     ],

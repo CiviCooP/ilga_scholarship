@@ -16,3 +16,4 @@ files[] = includes/ilga_scholarship_evaluate_application_link.inc
 files[] = includes/ilga_scholarship_evaluate_session_link.inc
 files[] = includes/ilga_scholarship_evaluate_summary.inc
 files[] = includes/ilga_scholarship_handler_filter_streams.inc
+files[] = includes/ilga_scholarship_handler_filter_sessionverdicts.inc
