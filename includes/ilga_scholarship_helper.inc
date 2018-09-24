@@ -94,7 +94,7 @@ class ilga_scholarship_helper{
      }
 
      return l('Evaluate', 'node/' . variable_get(ILGA_SCHOLARSHIP_EVALUATION_WEBFORM_NID), [
-         "query" => $query,
+         'query' => $query,
        ]
      );
    } catch (Exception $ex){
@@ -123,7 +123,9 @@ class ilga_scholarship_helper{
       $label = 'Approve Session';
     }
 
-    return l($label, "scholarship/votesession/$sid/$proposerId");
+    return l($label, "scholarship/votesession/$sid/$proposerId",[
+      'attributes' => ['target'=>'_blank']]
+      );
 
 
   }
