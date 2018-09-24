@@ -38,6 +38,14 @@ function ilga_scholarship_views_data() {
           'click sortable' => FALSE,
         ],
       ],
+      'evaluate_summary' => [
+        'title' => 'Session Summary',
+        'help' => 'Shows a summary of the session evaluations',
+        'field' => [
+          'handler' => 'ilga_scholarship_session_summary',
+          'click sortable' => FALSE,
+        ],
+      ],
       'evaluation_stream' => [
         'title' => t('Evaluation Stream'),
         'help' => t('Filter only the streams the evaluator is subscribed on'),
@@ -46,7 +54,7 @@ function ilga_scholarship_views_data() {
         ]
       ],
       'evaluation_session_verdicts' => [
-        'title' => t('Session Verdictssh '),
+        'title' => t('Session Verdictsh '),
         'help' => t('Filter on the session verdicts'),
         'filter' => [
           'handler' => 'ilga_scholarship_handler_filter_sessionverdicts',

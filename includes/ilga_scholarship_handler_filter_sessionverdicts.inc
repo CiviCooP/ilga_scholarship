@@ -23,6 +23,7 @@ class ilga_scholarship_handler_filter_sessionverdicts extends views_handler_filt
     else {
       $this->value_options = ilga_scholarship_helper::customFieldOptions(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD));
       $this->value_options['todo'] = 'To Do';
+      $this->value_options['unvoted'] = 'Unvoted';
       return $this->value_options;
     }
   }
@@ -51,7 +52,12 @@ class ilga_scholarship_handler_filter_sessionverdicts extends views_handler_filt
                               join {civicrm_activity_contact} ac on (ac.activity_id = a.id and record_type_id=1 and ac.contact_id=$contactId)
                               where cv.$submissionIdColumn = webform_submissions.sid
        )";
-    } else {
+    } else if ($value=='unvoted')
+      $clause = "not exists (select 1 from $sessionTable cv
+                              join {civicrm_activity} a on (cv.entity_id=a.id and a.activity_type_id = $activityTypeId)                                                         
+                              where cv.$submissionIdColumn = webform_submissions.sid
+       )";
+    else {
       $clause = "exists (select 1 from $sessionTable cv
                               join {civicrm_activity} a on (cv.entity_id=a.id and a.activity_type_id = $activityTypeId)                             
                               join {civicrm_activity_contact} ac on (ac.activity_id = a.id and record_type_id=1 and ac.contact_id=$contactId)

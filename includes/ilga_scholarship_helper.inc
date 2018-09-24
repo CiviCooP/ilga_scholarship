@@ -123,11 +123,8 @@ class ilga_scholarship_helper{
       $label = 'Approve Session';
     }
 
-    return l($label, "scholarship/votesession/$sid/$proposerId",[
-      'attributes' => ['target'=>'_blank']]
-      );
-
-
+    return l($label, "scholarship/votesession/$sid/$proposerId",
+      ['attributes' => ['target'=>'_blank']]);
   }
 
   /**
@@ -208,6 +205,34 @@ class ilga_scholarship_helper{
      }
      return $output;
    }
+
+  static public function sessionSummary($sessionId){
+
+    $submissionIdColumn = ilga_scholarship_helper::custom_column_name(variable_get(ILGA_SCHOLARSHIP_SUBMISSION_CUSTOM_FIELD));
+    $verdictColumn = ilga_scholarship_helper::custom_column_name(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD));
+    $sessionTable = ilga_scholarship_helper::custom_table_name('Sessions_proposal_evaluation');
+    $groupId = ilga_scholarship_helper::custom_column_optionGroupId(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD));
+
+
+    $sql = "select ov.label, a.details, $verdictColumn verdict from $sessionTable cv
+            join civicrm_activity a on (cv.entity_id=a.id and a.activity_type_id = %1)
+            join civicrm_option_value ov on (ov.value=cv.$verdictColumn and ov.option_group_id=%3)                             
+            where cv.$submissionIdColumn = %2";
+
+    $dao = CRM_Core_DAO::executeQuery($sql,[
+        1 => [variable_get(ILGA_SCHOLARSHIP_SESSION_ACTIVITY_TYPE),'Integer'],
+        2 => [$sessionId,'Integer'],
+        3 => [$groupId,'Integer'],
+      ]);
+    $output = "";
+    while($dao->fetch()){
+        $output.= '<strong>'.$dao->label . '</strong><br/>';
+      $output.= $dao->details.'<br/>';
+    }
+    return $output;
+
+
+  }
 
   /**
    * @param $fieldName
