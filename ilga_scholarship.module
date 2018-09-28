@@ -112,7 +112,8 @@ function _ilga_scholarship_sessionvote($form, &$form_state,$submissionId,$propos
   $form['verdict'] = [
     '#type' => 'select',
     '#title' => 'Evaluation',
-    '#options' => ilga_scholarship_helper::customFieldOptions(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD))
+    '#options' => ilga_scholarship_helper::customFieldOptions(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD)),
+    '#default_value' => 3
   ];
 
   $form['submissionid'] = [
