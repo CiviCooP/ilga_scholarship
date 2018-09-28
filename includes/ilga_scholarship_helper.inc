@@ -214,19 +214,23 @@ class ilga_scholarship_helper{
     $groupId = ilga_scholarship_helper::custom_column_optionGroupId(variable_get(ILGA_SCHOLARSHIP_SESSION_VERDICT_CUSTOM_FIELD));
 
 
-    $sql = "select ov.label, a.details, $verdictColumn verdict from $sessionTable cv
+    $sql = "select ov.label, a.details, $verdictColumn verdict, c.display_name from $sessionTable cv
             join civicrm_activity a on (cv.entity_id=a.id and a.activity_type_id = %1)
-            join civicrm_option_value ov on (ov.value=cv.$verdictColumn and ov.option_group_id=%3)                             
+            join civicrm_option_value ov on (ov.value=cv.$verdictColumn and ov.option_group_id=%3) 
+            join civicrm_activity_contact ac on (ac.activity_id = a.id and record_type_id=%4)    
+            join civicrm_contact c on (c.id=ac.contact_id)                        
             where cv.$submissionIdColumn = %2";
 
     $dao = CRM_Core_DAO::executeQuery($sql,[
         1 => [variable_get(ILGA_SCHOLARSHIP_SESSION_ACTIVITY_TYPE),'Integer'],
         2 => [$sessionId,'Integer'],
         3 => [$groupId,'Integer'],
+        4 => [3,'Integer']
       ]);
     $output = "";
     while($dao->fetch()){
-        $output.= '<strong>'.$dao->label . '</strong><br/>';
+        $output.= '<strong>'.$dao->label . '</strong>';
+        $output.= '(<em>'.$dao->display_name . '</em>)<br/>';
       $output.= $dao->details.'<br/>';
     }
     return $output;
