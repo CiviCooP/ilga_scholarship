@@ -128,7 +128,7 @@ function _ilga_scholarship_sessionvote($form, &$form_state,$submissionId,$propos
 
   $form['details'] = [
      '#type' => 'textarea',
-     '#title' => 'Motivation for your choice',
+     '#title' => 'Your motivation and/or name of the second reviewer',
   ];
 
   $form['submit'] = [
