@@ -38,7 +38,7 @@ function ilga_scholarship_views_data() {
           'click sortable' => FALSE,
         ],
       ],
-      'evaluate_summary' => [
+      'evaluate_session_summary' => [
         'title' => 'Session Summary',
         'help' => 'Shows a summary of the session evaluations',
         'field' => [
